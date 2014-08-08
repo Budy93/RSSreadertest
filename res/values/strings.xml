@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">RSSreadertest</string>
+    <string name="app_name">Nullcraft RSS Reader</string>
+    <string name="app_name_2">Nullcraft RSS Reader View</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 

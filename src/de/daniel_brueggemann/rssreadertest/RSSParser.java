@@ -4,7 +4,7 @@
 package de.daniel_brueggemann.rssreadertest;
 
 /**
- * @author A380
+ * @author Daniel Brüggemann
  *
  */
 import java.util.ArrayList;

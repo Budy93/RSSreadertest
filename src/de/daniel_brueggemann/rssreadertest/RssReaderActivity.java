@@ -10,6 +10,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,28 +18,53 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class RssReaderActivity extends ListActivity
+@SuppressLint("NewApi")
+public class RssReaderActivity extends ListActivity implements OnClickListener
 {
+	public static String urltest;
 	private ArrayList<RSSItem> itemlist = null;
 	private RSSListAdaptor rssadaptor = null;
+	public Button test;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+		if(android.os.Build.VERSION.SDK_INT > 9)
+		{
+			final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+			        .permitNetwork().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+		urltest="http://forum.nullcraft.de/forums/neuigkeiten.4/index.rss";
+		test=(Button)findViewById(R.id.button1);
+		test.setOnClickListener(this);
 		itemlist = new ArrayList<RSSItem>();
 		
 		new RetrieveRSSFeeds().execute();
 	}
+	@Override
+    public void onClick(View v)
+    {
+	    if(v==test)
+	    {
+	    	itemlist = new ArrayList<RSSItem>();
+			
+			new RetrieveRSSFeeds().execute();
+	    }
+	    
+    }
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id)
@@ -46,10 +72,14 @@ public class RssReaderActivity extends ListActivity
 		super.onListItemClick(l, v, position, id);
 		
 		RSSItem data = itemlist.get(position);
+		String URL=data.link;
+		Bundle urltransfer = new Bundle();
+		urltransfer.putString("datenpaket1", URL);
+		Intent in = new Intent(this, Newsreader.class);
+		in.putExtras(urltransfer);
+		//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(data.link));
 		
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(data.link));
-		
-		startActivity(intent);
+		startActivity(in);
 	}
 	
 	private void retrieveRSSFeed(String urlToRssFeed, ArrayList<RSSItem> list)
@@ -81,8 +111,7 @@ public class RssReaderActivity extends ListActivity
 		@Override
 		protected Void doInBackground(Void... params)
 		{
-			retrieveRSSFeed("http://forum.nullcraft.de/forums/-/index.rss",
-			        itemlist);
+			retrieveRSSFeed(urltest,itemlist);
 			rssadaptor = new RSSListAdaptor(RssReaderActivity.this,
 			        R.layout.rssitemview, itemlist);
 			return null;
@@ -98,7 +127,7 @@ public class RssReaderActivity extends ListActivity
 		protected void onPreExecute()
 		{
 			progress = ProgressDialog.show(RssReaderActivity.this, null,
-			        "Loading RSS Feeds...");
+			        "Lade RSS Feed...");
 			
 			super.onPreExecute();
 		}
